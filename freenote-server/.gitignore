@@ -3,3 +3,4 @@ node_modules
 *.sqlite3
 *.env*
 *.rest
+test.sql
