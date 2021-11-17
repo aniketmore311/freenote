@@ -1,6 +1,10 @@
 import { Handler } from "express";
 import { validationResult } from "express-validator";
-import { APIError } from "../APIError";
+
+interface validationError extends Error {
+  statusCode?: number,
+  code?: string,
+}
 
 export function validate(): Handler {
   return function (req, res, next) {
@@ -8,7 +12,10 @@ export function validate(): Handler {
     if (!errors.isEmpty()) {
       const error = errors.array()[0]
       const message = `${error.param} ${error.msg}`
-      throw APIError.badRequest(message);
+      const err: validationError = new Error(message);
+      err.code = "VALIDATION ERROR";
+      err.statusCode = 400;
+      throw err;
     }
     next()
   }
