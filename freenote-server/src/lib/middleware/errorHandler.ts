@@ -14,7 +14,7 @@ export function errorHandler(): ErrorRequestHandler {
       statusCode = err.statusCode;
       message = err.message;
     }
-    if (err.code) {
+    if (err.statusCode && err.code) {
       code = err.code;
     }
     const errResp = {
