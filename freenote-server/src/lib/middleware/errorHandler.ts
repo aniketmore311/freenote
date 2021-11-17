@@ -1,11 +1,15 @@
 import { ErrorRequestHandler, Request, Response, NextFunction } from 'express';
-import { APIError } from '../APIError';
+
+interface customError extends Error {
+  statusCode?: number,
+  code?: string,
+}
 
 export function errorHandler(): ErrorRequestHandler {
-  return function (err: APIError, req: Request, res: Response, next: NextFunction) {
+  return function (err: customError, req: Request, res: Response, next: NextFunction) {
     let statusCode = 500;
     let message = "something went wrong";
-    let code = APIError.codes.internalServerError;
+    let code = "ERROR";
     if (err.statusCode) {
       statusCode = err.statusCode;
       message = err.message;
@@ -13,13 +17,14 @@ export function errorHandler(): ErrorRequestHandler {
     if (err.code) {
       code = err.code;
     }
+    const errResp = {
+      statusCode,
+      message,
+      code
+    }
     return res.status(statusCode).json({
       errors: [
-        {
-          statusCode,
-          message,
-          code
-        }
+        errResp
       ]
     })
 
