@@ -1,7 +1,7 @@
 import { APIError } from "../lib/APIError";
 import { IUserRepDto, User } from "../models/User";
 import { IAuthService, loginDto, signupDto } from "../types/services/auth.service.interface";
-import { hashPassword, hashString, isPasswordMatching } from '../lib/password'
+import { hashPassword, hashString, match } from '../lib/password'
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 
@@ -21,7 +21,7 @@ export const authService: IAuthService = {
     if (user.is_verified == false) {
       throw APIError.forbidden('verify email before login');
     }
-    const res = await isPasswordMatching(password, user.password)
+    const res = await match(password, user.password)
     if (!res) {
       throw APIError.unauthorized('wrong password');
     }

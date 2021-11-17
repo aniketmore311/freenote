@@ -18,7 +18,7 @@ export async function hashString(data: string, salt: string) {
   return buff.toString('hex');
 }
 
-export async function isPasswordMatching(password: string, hash: string) {
+export async function match(password: string, hash: string) {
   const tokens = hash.split(':');
   const passhash = tokens[0];
   const salt = tokens[1];
