@@ -45,7 +45,7 @@ export const notesController = {
     const { title, content } = req.body;
     const { id, passwordKey } = res.locals.userToken;
     const user = await User.query().findById(id);
-    const userKey = await user.getUserKey(passwordKey as string);
+    const userKey = await user.getUserKey(passwordKey);
     const note = await Note.create({
       title,
       content,
