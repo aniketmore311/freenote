@@ -22,6 +22,7 @@ export class Note extends Model {
   //relations
   public user_id!: number;
   public user!: User;
+
   //static methods
   public static async create(dto: IPostCreateDto) {
     const { title, content, userId, userKey, initVector } = dto;
@@ -34,6 +35,7 @@ export class Note extends Model {
     })
     return note;
   }
+
   //instance methods
   public getDecryptedFields(userKey: string, initVector: string) {
     return {
