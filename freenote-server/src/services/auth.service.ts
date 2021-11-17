@@ -28,10 +28,10 @@ export const authService: IAuthService = {
     const respDto = user.toRespDto();
     const passwordKey = await hashString(password, user.password_key_salt)
     const accessToken = jwt.sign({ ...respDto, passwordKey }, config.env.secretKey, {
-      expiresIn: "15m"
+      expiresIn: config.env.accessTokenExpStr,
     })
     const refreshToken = jwt.sign({ ...respDto, passwordKey }, config.env.secretKey, {
-      expiresIn: "30d"
+      expiresIn: config.env.refreshTokenExpStr,
     })
     return {
       refreshToken,
@@ -64,7 +64,7 @@ export const authService: IAuthService = {
       }
       const respDto = user.toRespDto();
       return jwt.sign({ ...respDto, passwordKey: token.passwordKey }, config.env.secretKey, {
-        expiresIn: "15min"
+        expiresIn: config.env.accessTokenExpStr,
       })
     } catch (err) {
       throw APIError.badRequest('invalid token');
