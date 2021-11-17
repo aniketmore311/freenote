@@ -17,13 +17,13 @@ export const notesController = {
         body('title').isString(),
         body('content').isString(),
         validate(),
-        auth()
+        auth({ fetchUser: true })
       ],
       catchAsync(this.createNote)
     )
     router.get(
       '/',
-      auth(),
+      auth({ fetchUser: true }),
       catchAsync(
         this.getAllNotes
       )
@@ -33,10 +33,23 @@ export const notesController = {
       [
         param('id').isNumeric(),
         validate(),
-        auth(),
+        auth({ fetchUser: true }),
       ],
       catchAsync(
         this.getOneNote
+      )
+    )
+    router.patch(
+      '/:id',
+      [
+        param('id').isNumeric(),
+        body('title').isString().optional(),
+        body('content').isString().optional(),
+        validate(),
+        auth({ fetchUser: true }),
+      ],
+      catchAsync(
+        this.updateNote
       )
     )
     router.delete(
@@ -44,7 +57,7 @@ export const notesController = {
       [
         param('id').isNumeric(),
         validate(),
-        auth()
+        auth({ fetchUser: true }),
       ],
       catchAsync(this.deleteNote)
     )
@@ -54,8 +67,8 @@ export const notesController = {
 
   async createNote(req: Request, res: Response) {
     const { title, content } = req.body;
-    const { id, passwordKey } = res.locals.userToken;
-    const user = await User.query().findById(id);
+    const { passwordKey } = req.userToken!;
+    const user = req.user!;
     const userKey = await user.getUserKey(passwordKey);
     const note = await Note.create({
       title,
@@ -73,8 +86,8 @@ export const notesController = {
   },
 
   async getAllNotes(req: Request, res: Response) {
-    const { id, passwordKey } = res.locals.userToken;
-    const user = await User.query().findById(id);
+    const { passwordKey } = req.userToken!;
+    const user = req.user!;
     const userKey = await user.getUserKey(passwordKey);
     const notes = await user.$relatedQuery('notes').where({ is_deleted: false });
     const notesResp = notes.map(note => note.toDecRespDto(userKey, user.init_vector));
@@ -85,26 +98,46 @@ export const notesController = {
 
   async getOneNote(req: Request, res: Response) {
     const { id } = req.params;
-    const { userId, passwordKey } = res.locals.userToken
+    const user = req.user!;
     const note = await Note.query().findOne({ id, is_deleted: false });
-    const user = await User.query().findById(userId);
-    const userKey = await user.getUserKey(passwordKey);
-    if (!note) {
+    if (!note || user.id !== note.user_id) {
       throw APIError.notFound('note not found');
     }
+    const { passwordKey } = req.userToken!;
+    const userKey = await user.getUserKey(passwordKey);
     return res.json({
       data: note.toDecRespDto(userKey, user.init_vector),
     })
   },
 
-  async deleteNote(req: Request, res: Response) {
+  async updateNote(req: Request, res: Response) {
+    const { title, content } = req.body;
     const { id } = req.params;
-    const { id: userId } = res.locals.userToken;
-    const note = await Note.query().findById(id);
-    if (!note) {
+    const user = req.user!;
+    const note = await Note.query().findOne({ id, is_deleted: false });
+    if (!note || user.id !== note.user_id) {
       throw APIError.notFound('note not found');
     }
-    if (note.user_id !== userId) {
+    const { passwordKey } = req.userToken!;
+    const userKey = await user.getUserKey(passwordKey);
+    const details: Partial<Note> = {};
+    if (title !== undefined) {
+      details.title = encrypt(title, userKey, user.init_vector);
+    }
+    if (content !== undefined) {
+      details.content = encrypt(content, userKey, user.init_vector);
+    }
+    const upNote = await note.$query().updateAndFetch(details);
+    return res.json({
+      data: upNote.toDecRespDto(userKey, user.init_vector),
+    })
+  },
+
+  async deleteNote(req: Request, res: Response) {
+    const { id } = req.params;
+    const { id: userId } = req.userToken!;
+    const note = await Note.query().findOne({ id, is_deleted: false });
+    if (!note || note.user_id !== userId) {
       throw APIError.notFound('note not found');
     }
     await note.softDelete();
