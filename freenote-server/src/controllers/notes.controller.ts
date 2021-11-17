@@ -28,6 +28,17 @@ export const notesController = {
         this.getAllNotes
       )
     )
+    router.get(
+      '/:id',
+      [
+        param('id').isNumeric(),
+        validate(),
+        auth(),
+      ],
+      catchAsync(
+        this.getOneNote
+      )
+    )
     router.delete(
       '/:id',
       [
@@ -69,6 +80,20 @@ export const notesController = {
     const notesResp = notes.map(note => note.toDecRespDto(userKey, user.init_vector));
     return res.json({
       data: notesResp,
+    })
+  },
+
+  async getOneNote(req: Request, res: Response) {
+    const { id } = req.params;
+    const { userId, passwordKey } = res.locals.userToken
+    const note = await Note.query().findOne({ id, is_deleted: false });
+    const user = await User.query().findById(userId);
+    const userKey = await user.getUserKey(passwordKey);
+    if (!note) {
+      throw APIError.notFound('note not found');
+    }
+    return res.json({
+      data: note.toDecRespDto(userKey, user.init_vector),
     })
   },
 
