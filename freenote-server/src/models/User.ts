@@ -16,6 +16,10 @@ export interface IUserRepDto {
   role: string,
 }
 
+export interface IUserToken extends IUserRepDto {
+  passwordKey: string,
+}
+
 export interface IUserCreateDto {
   firstname: string,
   lastname: string,
