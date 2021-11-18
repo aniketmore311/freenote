@@ -1,18 +1,32 @@
 import React from 'react'
 import styled from 'styled-components/native'
-import { color, space } from 'styled-system'
-import { TouchableOpacity } from 'react-native'
+import { color, layout, space,flex } from 'styled-system'
+import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import { theme } from '../styles/theme'
 
-const Button = styled(TouchableOpacity)`
+export default function Button({ children, loading, loadingColor, ...restProps }) {
+  return (
+    <SytledOpacity {...restProps}  >
+      {
+        loading
+          ? <ActivityIndicator color={loadingColor || "white"} />
+          : children
+      }
+    </SytledOpacity>
+  )
+}
+
+
+const SytledOpacity = styled(TouchableOpacity)`
   background-color: #3B82F6;
-  border-radius: 4px;
-  padding-left: 16px;
-  padding-right: 16px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  border-radius: ${theme.radii.lg};
+  padding-left: ${theme.space[4]};
+  padding-right: ${theme.space[4]};
+  padding-top: ${theme.space[2]};
+  padding-bottom: ${theme.space[2]};
   ${color}
   ${space}
+  ${layout}
+  ${flex}
 `
-
-export default Button;
 

@@ -1,25 +1,23 @@
+import { NavigationContainer } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { ThemeProvider } from 'styled-components/native';
 import Button from './components/Button';
 import Container from './components/Container';
+import LoginScreen from './screens/LoginScreen';
+import SignupScreen from './screens/SignupScreen';
+import { theme } from './styles/theme';
+import AuthStackNavigator from './navigators/AuthStackNavigator';
+
 
 function App() {
   const [count, setCount] = useState(0);
   return (
-    <Container justifyContent="center" alignItems="center">
-      <Button title="click me" onPress={(e) => { setCount(pre => pre + 1) }}>
-        <Text style={{ color: 'white' }}>increment</Text>
-      </Button>
-      <Text style={{ marginTop: 20 }}>
-        {
-          count
-        }
-      </Text>
-      <Button mt="20px" title="click me" onPress={(e) => { setCount(0) }} >
-        <Text style={{ color: "white" }}>reset</Text>
-      </Button>
-
-    </Container>
+    <NavigationContainer>
+      {/* <LoginScreen /> */}
+      {/* <SignupScreen /> */}
+      <AuthStackNavigator />
+    </NavigationContainer>
   )
 }
 export default App;
