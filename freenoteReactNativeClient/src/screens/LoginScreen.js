@@ -1,42 +1,70 @@
-import { NavigationContainer } from '@react-navigation/native'
-import React from 'react'
-import { View, Text, TextInput } from 'react-native'
-import Banner from '../components/Banner'
+import React, { } from 'react'
+import PropTypes from 'prop-types';
+import Typography from '../components/Typography';
+import { client } from '../client'
 import Button from '../components/Button'
 import Container from '../components/Container'
 import Input from '../components/Input'
+import useLoading from '../hooks/useLoading'
+import { useMessageStore } from '../stores/messageStore'
+import { useUserStore } from '../stores/userStore'
 import { theme } from '../styles/theme'
-const { getNumber } = theme;
+import { Formik } from 'formik'
 
-export default function LoginScreen({ navigation, params }) {
+export default function LoginScreen({ navigation }) {
+
+  const setUser = useUserStore(state => state.setUser);
+  const { isLoading, startLoading, stopLoading } = useLoading(false);
+  const { setErrorMessage } = useMessageStore();
+
   return (
     <>
-      {
-        params?.success ? (
-          <Banner content={params?.success} variant="success" />
-        ) : null
-      }
-      {
-        params?.error ? (
-          <Banner content={params.error} variant="error" />
-        ) : null
-      }
       <Container justifyContent="center" alignItems="flex-start" p="32px">
-        <Text style={{ color: "black", fontWeight: "bold", marginBottom: getNumber(theme.space[8]), fontSize: getNumber(theme.fontSize['3xl']), textAlign: "center", width: "100%" }}>Login</Text>
-        <Input width="100%" placeholder="Email..." mb={theme.space[4]} placeholderTextColor={theme.colors.gray[500]} />
-        <Input width="100%" placeholder="Password..." placeholderTextColor={theme.colors.gray[500]} />
-        <Button mt={theme.space[8]} py={theme.space[3]} width="100%">
-          <Text style={{ color: "white", fontSize: getNumber(theme.fontSize.lg), textAlign: "center" }}>login</Text>
-        </Button>
-        <View style={{ marginTop: getNumber(theme.space[4]) }}>
-          <Text style={{ color: "black", fontSize: getNumber(theme.fontSize.md), textAlign: "center" }}>
-            don't have an account?{' '}
-            <Text style={{ color: theme.colors.blue[500], textDecorationLine: "underline", fontSize: getNumber(theme.fontSize.md), textAlign: "center" }} onPress={(e) => { navigation.navigate('Signup') }}>
-              signup
-            </Text>
-          </Text>
-        </View>
+        <Formik
+          initialValues={{
+            email: "",
+            password: "",
+          }}
+          onSubmit={async ({ email, password }, actions) => {
+            startLoading();
+            try {
+              await client.login({ email, password });
+              const user = await client.getUser();
+              stopLoading();
+              setUser(user);
+            } catch (err) {
+              setErrorMessage(err.message);
+              stopLoading();
+            }
+            actions.resetForm();
+          }}
+        >
+          {({ values, handleChange, handleSubmit }) => (
+            <>
+              <Typography color="blue.500" fontWeight="bold" fontSize="3xl" textAlign="center" width="100%" mb={8}>Login</Typography>
+
+              <Input value={values.email} onChangeText={handleChange('email')} width="100%" placeholder="Email..." mb={4} placeholderTextColor={theme.colors.gray[500]} />
+
+              <Input value={values.password} onChangeText={handleChange('password')} width="100%" placeholder="Password..." placeholderTextColor={theme.colors.gray[500]} />
+
+              <Button loading={isLoading} onPress={handleSubmit} mt={8} py={3} width="100%">
+                <Typography color="white" fontSize="lg" textAlign="center" width="100%">login</Typography>
+              </Button>
+
+              <Typography mt={4}>
+                {"Don't have an account? "}
+                <Typography color="blue.500" onPress={() => { navigation.navigate('Signup') }}>signup</Typography>
+              </Typography>
+
+            </>
+          )}
+        </Formik>
       </Container>
     </>
   )
+}
+
+LoginScreen.propTypes = {
+  navigation: PropTypes.object,
+  params: PropTypes.object,
 }

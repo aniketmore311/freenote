@@ -1,0 +1,1 @@
+adb reverse tcp:8090 tcp:8090

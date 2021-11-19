@@ -7,6 +7,7 @@ import { decrypt, encrypt } from '../lib/encryption';
 import { hashPassword, hashString } from '../lib/password';
 import { APIError } from '../lib/APIError'
 import { ms } from '../lib/time'
+import { config } from '../config/config';
 
 export interface IUserRepDto {
   id: number,
@@ -92,6 +93,8 @@ export class User extends Model {
     const verifyToken = crypto.randomBytes(16).toString('hex');
     const verifyTokenExp = new Date(Date.now() + 15 * ms.MIN);
 
+    const isVerified = config.env.skipEmailVerification == "true" ? true : false;
+
     const details: Partial<User> = {
       firstname: dto.firstname,
       lastname: dto.lastname,
@@ -100,6 +103,7 @@ export class User extends Model {
       role: dto.role,
       verify_token: verifyToken,
       verify_token_exp: verifyTokenExp,
+      is_verified: isVerified,
       init_vector: initVector,
       password_key_salt: passKeySalt,
       encrypted_user_key: encUserKey,

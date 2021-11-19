@@ -8,6 +8,7 @@ export const config = {
     dbUri: getEnv('DB_URI', "db.sqlite"),
     secretKey: getEnv('SECRET_KEY', "secret_key"),
     accessTokenExpStr: getEnv('ACCESS_TOKEN_EXP_STR', "15min"),
-    refreshTokenExpStr: getEnv('REFRESH_TOKEN_EXP_STR', "30d")
+    refreshTokenExpStr: getEnv('REFRESH_TOKEN_EXP_STR', "30d"),
+    skipEmailVerification: getEnv('SKIP_EMAIL_VERIFICATION', "false")
   },
 }

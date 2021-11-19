@@ -1,10 +1,13 @@
 import React from 'react'
-import { View, Text, ShadowPropTypesIOS } from 'react-native'
+import { Text, } from 'react-native'
 import styled from 'styled-components/native'
-import { flex, color } from 'styled-system'
+import { color } from 'styled-system'
 import { theme } from '../styles/theme'
 
 export default function Banner({ content, variant, ...restProps }) {
+  if (!content) {
+    return null;
+  }
   return (
     <BannerContainer {...restProps} variant={variant}>
       <Text style={{
@@ -18,7 +21,7 @@ export default function Banner({ content, variant, ...restProps }) {
               return theme.colors.red[700];
           }
         })(),
-        fontSize: theme.getNumber(theme.fontSize.md)
+        fontSize: theme.getNumber(theme.fontSizes.md)
       }}>
         {content}
       </Text>
@@ -36,7 +39,6 @@ const BannerContainer = styled.View`
   color: ${(props) => {
     switch (props.variant) {
       case "success":
-        console.log("sus")
         return theme.colors.green[100];
       case "error":
         return theme.colors.red[100];

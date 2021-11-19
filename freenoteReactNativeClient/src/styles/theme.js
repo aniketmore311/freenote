@@ -56,7 +56,7 @@ const fontWeights = {
   black: 900,
 }
 
-const fontSize = {
+const fontSizes = {
   "xs": "12px",
   "sm": "14px",
   "md": "16px",
@@ -317,7 +317,7 @@ export const theme = {
   space,
   radii,
   colors,
-  fontSize,
+  fontSizes,
   fontWeights,
   getNumber: (str) => {
     return Number(str.split('px')[0])

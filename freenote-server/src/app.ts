@@ -12,7 +12,7 @@ export const app = express();
 // middleware
 app.use(cors())
 app.use(express.json())
-app.use(logRequest({ logFunction: (str) => { logger.info(str) } }))
+app.use(logRequest({ logFunction: (str) => { logger.info(str) }, logBody: false }))
 
 //health endpoint
 app.get('/health', (req: Request, res: Response) => {
