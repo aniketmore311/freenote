@@ -69,10 +69,18 @@ export const pin = {
 }
 
 async function _handleResponse(resp) {
-  const respJson = await resp.json();
-  if (!resp.ok) {
-    const msg = respJson.errors[0].message;
-    throw new Error(msg);
+  if (resp.ok) {
+    const respJson = await resp.json();
+    return respJson;
+  } else {
+    try {
+      const respJson = await resp.json();
+      const message = respJson.errors[0].message;
+      const err = new Error(message);
+      return Promise.reject(err);
+    } catch (err) {
+      console.log(err);
+      return Promise.reject(new Error('an error occured'));
+    }
   }
-  return respJson;
 }
