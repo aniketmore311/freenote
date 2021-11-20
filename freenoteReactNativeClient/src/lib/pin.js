@@ -1,5 +1,4 @@
 export const pin = {
-
   /**
    * @param {string} url
    * @param {{headers: Object<string,string>}} opts
@@ -75,7 +74,7 @@ async function _handleResponse(resp) {
   } else {
     try {
       const respJson = await resp.json();
-      const message = respJson.errors[0].message;
+      const message = _messageExtractor(respJson);
       const err = new Error(message);
       return Promise.reject(err);
     } catch (err) {
@@ -83,4 +82,7 @@ async function _handleResponse(resp) {
       return Promise.reject(new Error('an error occured'));
     }
   }
+}
+function _messageExtractor(resp){
+  return resp.errors[0].message;
 }
